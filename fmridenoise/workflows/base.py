@@ -6,11 +6,11 @@ from fmridenoise.interfaces.denoising import Denoise
 from fmridenoise.interfaces.connectivity import Connectivity, GroupConnectivity
 from fmridenoise.interfaces.pipeline_selector import PipelineSelector
 from fmridenoise.interfaces.quality_measures import QualityMeasures, PipelinesQualityMeasures, MergeGroupQualityMeasures
+from fmridenoise.interfaces.report_creator import ReportCreator
 import fmridenoise.utils.temps as temps
 from fmridenoise.parcellation import get_parcelation_file_path, get_distance_matrix_file_path
 
 from nipype import config
-
 import fmridenoise
 import os
 import glob
@@ -166,7 +166,16 @@ def init_fmridenoise_wf(bids_dir,
 
     # Outputs: pipelines_fc_fd_summary, pipelines_edges_weight
 
-    # 11) --- Save derivatives
+    # 11) --- Report from data
+
+    report_creator = pe.JoinNode(
+        ReportCreator(
+            group_data_dir=os.path.join(bids_dir, 'derivatives', 'fmridenoise'),
+            joinsource=pipelineselector,
+    ),
+    name=ReportCreator)
+
+    # 12) --- Save derivatives
     # TODO: Fill missing in/out
     ds_confounds = pe.MapNode(BIDSDataSink(base_directory=bids_dir),
                     iterfield=['in_file', 'entities'],

@@ -1,6 +1,6 @@
 from nipype.interfaces.base import (
     BaseInterfaceInputSpec, TraitedSpec, SimpleInterface,
-    InputMultiPath, OutputMultiPath, File, Directory,
+    InputMultiPath, OutputMultiPath, File, Directory, Bool,
     traits, isdefined
     )
 
@@ -168,7 +168,7 @@ class PipelinesQualityMeasuresInputSpec(BaseInterfaceInputSpec):
         exists=True,
         desc="Weights of individual edges")
 
-    edges_weight_clean = traits.List(
+    edges_weight_clean = traits.List( # TODO: Fix me
         exists=True,
         desc="Weights of individual edges")
 
@@ -189,6 +189,7 @@ class PipelinesQualityMeasuresOutputSpec(TraitedSpec):
         exists=True,
         desc="Group weights of individual edges")
 
+    finished = Bool() # TODO: Placeholder
 class PipelinesQualityMeasures(SimpleInterface):
     input_spec = PipelinesQualityMeasuresInputSpec
     output_spec = PipelinesQualityMeasuresOutputSpec
@@ -275,5 +276,5 @@ class PipelinesQualityMeasures(SimpleInterface):
         self._results['pipelines_fc_fd_summary'] = fname1
         self._results['pipelines_edges_weight'] = fname2
         self._results['pipelines_edges_weight_clean'] = fname3
-
+        self._results['finished'] = True #TODO: Placeholder
         return runtime
