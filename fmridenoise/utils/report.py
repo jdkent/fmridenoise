@@ -23,11 +23,12 @@ def create_data_dict(data_path: str, pipelines_list: list) -> dict:
 def create_report(data_path: str, pipelines_list: list) -> None:
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(
-            searchpath=dirname(__file__)))
-
-    tpl = env.get_template('report_template.tpl')
+            searchpath=join(dirname(__file__), 'templates')))
+    css_template = env.get_template('report.css')
+    css = css_template.render()
+    tpl = env.get_template('report_template.html')
     data_dict = create_data_dict(data_path, pipelines_list)
-    html = tpl.render(data_dict)
+    html = tpl.render(data_dict, css=css)
     with open(join(data_path, 'report.html'), 'w') as report_file:
         report_file.write(html)
 
