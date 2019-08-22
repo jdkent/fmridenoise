@@ -2,7 +2,64 @@ import jinja2
 from os.path import join, dirname, exists
 import glob
 
-# TODO: Consider teaking plot names from PipelinesQualityMeasures insted of pathfinding them.
+def get_pipeline_summary(pipeline):
+
+    """Generates list of dictionaries with setting summary for pipeline.
+
+    Args:
+        pipeline: Dictionary with pipeline setup (from .json file)
+
+     Returns:
+        pipeline_list: list of dictionaries with pipeline setup.
+    """
+    YES = '\u2713'
+    NO = '\u2717'
+    confounds = {"wm": "WM",
+                 "csf": "CSF",
+                 "gs": "GS",
+                 "acompcor": "aCompCor",
+                 "aroma": "ICA-Aroma",
+                 "spikes": "Spikes"}
+
+    pipeline_list = []
+
+    for conf, conf_name in confounds.items():
+
+        if conf != "aroma":
+            if conf != "spikes":
+                raw = YES if pipeline["confounds"][conf] else NO
+
+                if not pipeline["confounds"][conf]:
+                    temp_deriv = NO
+                    quad_terms = NO
+
+                if isinstance(pipeline["confounds"][conf], dict):
+
+                    if pipeline["confounds"][conf]['temp_deriv']:
+                        temp_deriv = YES
+
+                    if pipeline["confounds"][conf]['quad_terms']:
+                        quad_terms = YES
+
+        if conf == "aroma":
+            raw = YES if pipeline[conf] else NO
+            temp_deriv = NO
+            quad_terms = NO
+
+        if conf == "spikes":
+            raw = YES if pipeline[conf] else NO
+            temp_deriv = NO
+            quad_terms = NO
+
+        pipeline_dict = {"Confound": conf_name,
+                         "Raw": raw,
+                         "Temp. deriv.": temp_deriv,
+                         "Quadr. terms": quad_terms}
+
+        pipeline_list.append(pipeline_dict)
+
+    return(pipeline_list)
+
 def create_data_dict(data_path: str, pipelines_list: list) -> dict:
     output = {}
     output['pipelines'] = []
@@ -15,7 +72,8 @@ def create_data_dict(data_path: str, pipelines_list: list) -> dict:
         
         pipeline_dict = {'name': pipeline['name'],
                          'corelation_matrix_all': all,
-                         'corelation_matrix_no_high_motion': no_high_motion}
+                         'corelation_matrix_no_high_motion': no_high_motion,
+                         'summary': get_pipeline_summary(pipeline)}
         output['pipelines'].append(pipeline_dict)
     return output
 

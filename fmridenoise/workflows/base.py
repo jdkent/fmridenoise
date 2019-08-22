@@ -170,10 +170,11 @@ def init_fmridenoise_wf(bids_dir,
 
     report_creator = pe.JoinNode(
         ReportCreator(
-            group_data_dir=os.path.join(bids_dir, 'derivatives', 'fmridenoise'),
-            joinsource=pipelineselector,
-    ),
-    name=ReportCreator)
+            group_data_dir=os.path.join(bids_dir, 'derivatives', 'fmridenoise')
+        ),
+        joinsource=pipelineselector,
+        joinfield=['pipelines', 'pipelines_names'],
+        name='ReportCreator')
 
     # 12) --- Save derivatives
     # TODO: Fill missing in/out
@@ -246,7 +247,16 @@ def init_fmridenoise_wf(bids_dir,
         (merge_quality_measures, pipelines_quality_measures,
             [('fc_fd_summary', 'fc_fd_summary'),
              ('edges_weight', 'edges_weight'),
-             ('edges_weight_clean', 'edges_weight_clean')])
+             ('edges_weight_clean', 'edges_weight_clean')]),
+        (pipelines_quality_measures, report_creator,
+            [('plot_pipeline_edges_density', 'plot_pipeline_edges_density'),
+             ('plot_pipelines_edges_density_no_high_motion', 'plot_pipelines_edges_density_no_high_motion'),
+             ('plot_pipelines_fc_fd_pearson', 'plot_pipelines_fc_fd_pearson'),
+             ('plot_pipelines_fc_fd_uncorr', 'plot_pipelines_fc_fd_uncorr'),
+             ('plot_pipelines_distance_dependence', 'plot_pipelines_distance_dependence')]),
+        (pipelineselector, report_creator,
+            [('pipeline', 'pipelines'),
+             ('pipeline_name', 'pipelines_names')])
     ])
 
     return workflow
